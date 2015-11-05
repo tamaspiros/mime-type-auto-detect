@@ -2,7 +2,11 @@ var express = require('express');
 var marklogic = require('marklogic');
 var app = express();
 var router = express.Router();
+var mmm = require('mmmagic');
+var Magic = mmm.Magic;
+var magic = new Magic(mmm.MAGIC_MIME_TYPE); //MAGIC_MIME_TYPE constructor to only return the MIME_TYPE
 
+//update if necessary
 var host = 'localhost';
 var port = 5002;
 var user = 'admin';
@@ -18,12 +22,8 @@ var connection = {
 var db = marklogic.createDatabaseClient(connection);
 var qb = marklogic.queryBuilder;
 
-var mmm = require('mmmagic');
-var Magic = mmm.Magic;
-var magic = new Magic(mmm.MAGIC_MIME_TYPE);
-
 var displayImage = function(req, res) {
-  if (req.url !== '/favicon.ico') {
+  if (req.url !== '/favicon.ico') { //ignore requests to /favicon.ico otherwise two Content-types are returned
     var uri = '/' + req.params['0'];
     var chunkedData = [];
     var buf = [];
@@ -40,16 +40,16 @@ var displayImage = function(req, res) {
         if (error) {
           console.log(error);
         }
-        res.writeHead(200, { 'Content-type': 'image/jpeg' });
+        res.writeHead(200, { 'Content-type': result });
         res.end(buf);
       });
     });
   }
 };
 
-router.route('/*').get(displayImage);
+router.route('/*').get(displayImage); //generic route definition
 app.use('/', router);
-app.set('port', 3000);
+app.set('port', 3000); //update if necessary
 
 app.listen(app.get('port'));
 console.log('Magic happens on port ' + app.get('port'));
